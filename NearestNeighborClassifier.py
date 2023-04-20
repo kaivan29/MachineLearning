@@ -3,7 +3,6 @@ import numpy as np
 
 
 class NearestNeighbor(object):
-
     def __init__(self):
         self.ytr = None
         self.Xtr = None
@@ -20,8 +19,9 @@ class NearestNeighbor(object):
             # Dimension of Xte is NxD, we want to compare each image
             # by computing L1 distance between all the pixels of each image
             # Notation to access 1xD would be Xte[1, :] or Xte[1]
+            # L1 distance is also known as Manhattan distance
             L1dist = np.sum(np.abs(self.Xtr - Xte[i, :]), axis=1)
-            # Can also use L2dist
+            # L2 distance is also known as Euclidean Distance
             L2dist = np.sqrt(np.sum(np.square(np.abs(self.Xtr - Xte[i, :])), axis=1))
             index = np.argmin(L1dist)
             ype[i] = self.ytr[index]
@@ -35,10 +35,31 @@ def main():
     Xtr_rows = Xtr.reshape(Xtr.shape[0], 32 * 32 * 3)  # Xtr_rows becomes 50000 x 3072
     Xte_rows = Xte.reshape(Xte.shape[0], 32 * 32 * 3)  # Xte_rows becomes 10000 x 3072
 
-    nn = NearestNeighbor()
-    nn.train(Xtr, Ytr)
-    Ype = nn.predict(Xte)
-    print(np.mean(Ype == Yte) * 100)
+    # Use validation set for hyperparameter tuning, so use a part of the training dataset as validation dataset
+    Xval_rows = Xtr_rows[:1000, :]
+    Xtr_rows = Xtr_rows[1000:, :]
+    Yval = Ytr[:1000]
+    Ytr = Ytr[1000:]
 
-# Results: Precision with L1 dist is only ~38.6%. L1 distance is also known as Manhattan distance
-# Precision with L2 dist is only ~35.2%. L2 distance is also known as Euclidean Distance
+    # Hyperparameter Tuning for k in K-NN
+    K = [1, 3, 5, 10]
+    nn = NearestNeighbor()
+    nn.train(Xtr_rows, Ytr)
+    accuracy = np.array()
+    # Use validation set for hyperparameter tuning
+    for k in K:
+        Ype = nn.predict(Xval_rows, k)
+        accuracy.append(np.mean(Ype == Yval))
+
+    # Do prediction now using the k
+    k = np.argmax(accuracy)
+    Ype = nn.predict(Xte_rows, k)
+    print("Accuracy: ", np.mean(Ype == Yval) * 100)
+
+# Cross Validation
+# In practice, people prefer to avoid cross-validation in favor of having a single validation split, since
+# cross-validation can be computationally expensive. The splits people tend to use is between 50%-90% of the training
+# data for training and rest for validation. However, this depends on multiple factors: For example if the no. of
+# hyperparameter is large you may prefer to use bigger validation splits. If the number of examples in the validation
+# set is small (perhaps only a few hundred or so), it is safer to use cross-validation. Typical number of folds you can
+# see in practice would be 3-fold, 5-fold or 10-fold cross- validation
