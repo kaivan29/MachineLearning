@@ -20,8 +20,10 @@ class NearestNeighbor(object):
             # Dimension of Xte is NxD, we want to compare each image
             # by computing L1 distance between all the pixels of each image
             # Notation to access 1xD would be Xte[1, :] or Xte[1]
-            dist = np.sum(np.abs(self.Xtr - Xte[i, :]), axis=1)
-            index = np.argmin(dist)
+            L1dist = np.sum(np.abs(self.Xtr - Xte[i, :]), axis=1)
+            # Can also use L2dist
+            L2dist = np.sqrt(np.sum(np.square(np.abs(self.Xtr - Xte[i, :])), axis=1))
+            index = np.argmin(L1dist)
             ype[i] = self.ytr[index]
 
         return ype
@@ -38,4 +40,5 @@ def main():
     Ype = nn.predict(Xte)
     print(np.mean(Ype == Yte) * 100)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Results: Precision with L1 dist is only ~38.6%. L1 distance is also known as Manhattan distance
+# Precision with L2 dist is only ~35.2%. L2 distance is also known as Euclidean Distance
