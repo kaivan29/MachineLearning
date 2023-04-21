@@ -63,3 +63,12 @@ def main():
 # hyperparameter is large you may prefer to use bigger validation splits. If the number of examples in the validation
 # set is small (perhaps only a few hundred or so), it is safer to use cross-validation. Typical number of folds you can
 # see in practice would be 3-fold, 5-fold or 10-fold cross- validation
+
+# 1. Preprocess your data: Normalize the features in your data (e.g. one pixel in images) to have zero mean and unit
+# variance.
+# 2. If your data is very high-dimensional, consider using a dimensionality reduction technique such as PCA
+# 3. Split your training data randomly into 70-90% train/val. More hyperparameter, means larger validation data.
+# If data set is less use cross-validation
+# 4. Train and evaluate on validation data use many values of k
+# 5. if kNN takes too long, use ANN i.e approximate nearest neighbor
+# 6.
